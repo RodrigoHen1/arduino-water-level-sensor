@@ -1,0 +1,68 @@
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd ( 7, 10, 4, 11, 6, 12);
+
+int triggerPin = 0;
+
+int echoPin = 0;
+
+int LevelSensorVal = 0;
+
+long readUltrasonicDistance(int triggerPin, int echoPin)
+{
+  pinMode(triggerPin, OUTPUT);
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  pinMode(echoPin, INPUT);
+  return pulseIn(echoPin, HIGH);
+}
+
+void setup()
+{
+  lcd.begin(16,2);
+  lcd.setCursor(0, 0);
+  lcd.print("tanque de agua");
+  delay(1000);
+  lcd.clear();
+  Serial.begin(9600); 
+  
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+  pinMode(5, OUTPUT);
+}
+
+void loop()
+{
+  echoPin = 3;
+  triggerPin = 2;
+  LevelSensorVal = 0.01723 * readUltrasonicDistance(2, 3);
+  if (LevelSensorVal >=80 && LevelSensorVal <=200 ) {
+    Serial.println("nivel medio");
+    Serial.println(LevelSensorVal);
+    lcd.print("nivel medio");
+    delay(1000);
+    lcd.clear();
+  }
+  if (LevelSensorVal <= 40) {
+    Serial.println("tanque cheio");
+    digitalWrite(8, HIGH);
+    digitalWrite(9, HIGH);
+    lcd.print("tanque cheio");
+      delay(1000);
+     lcd.clear();
+    tone(5, 19, 1000);
+  }
+  if (LevelSensorVal >= 300) {
+    Serial.println("tanque vazio");
+    digitalWrite(8, LOW);
+    digitalWrite(9, HIGH);
+    lcd.clear();
+    lcd.print("tanque vazio");
+      delay(1000);
+     lcd.clear();
+  }
+  delay(10);
+}
